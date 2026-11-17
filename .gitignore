@@ -1,0 +1,18 @@
+# R / RStudio
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+
+# Quarto (salidas renderizadas)
+/.quarto/
+*_files/
+analisis_alumbrado.html
+
+# Datos crudos: contienen nombres de encuestadoras.
+# Borrá esta línea si querés subir la base al repositorio.
+data/*.xlsx
+
+# Sistema
+.DS_Store
+Thumbs.db

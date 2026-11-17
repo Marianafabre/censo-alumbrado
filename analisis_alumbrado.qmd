@@ -1,0 +1,260 @@
+---
+title: "Censo de Alumbrado Público – San José"
+subtitle: "Análisis exploratorio"
+author: ""
+date: today
+lang: es
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    code-fold: true
+    embed-resources: true
+    theme: cosmo
+execute:
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+library(tidyverse)
+library(readxl)
+library(gt)
+library(scales)
+library(sf)
+library(leaflet)
+
+ruta <- "data/base_alumbrado.xlsx"
+```
+
+# Datos y limpieza
+
+```{r}
+#| label: carga
+raw <- read_excel(ruta)
+
+df <- raw |>
+  transmute(
+    id          = ObjectID,
+    localidad   = Localidad,
+    tipo        = `Tipo de iluminaria`,
+    tipo_otro   = `Otro - Tipo de iluminaria`,
+    material    = `Material de apoyo de la luminaria`,
+    material_otro = `Otro - Material de apoyo de la luminaria`,
+    artefactos  = `Indique la cantidad de artefactos`,
+    parque_plaza = `Luminaria dentro de Parque o Plaza`,
+    observaciones = Observaciones,
+    encuestadora = `Encuestadora:`,
+    fecha       = as.Date(CreationDate),
+    lon = x, lat = y
+  ) |>
+  mutate(
+    # Recodificar las respuestas "other" usando el texto libre
+    tipo_rec = case_when(
+      tipo != "other" ~ tipo,
+      str_detect(str_to_lower(tipo_otro), "reflector|faro") ~ "Reflector",
+      str_detect(str_to_lower(tipo_otro), "solar") ~ "Solar",
+      TRUE ~ "Otro"
+    ),
+    material_rec = case_when(
+      is.na(material) ~ "Sin dato",
+      material != "other" ~ material,
+      str_detect(str_to_lower(material_otro), "palo|madera") ~ "Madera",
+      str_detect(str_to_lower(material_otro), "dolmenit") ~ "Hormigón",
+      str_detect(str_to_lower(material_otro), "metal") ~ "Metálico",
+      str_detect(str_to_lower(material_otro), "pared|amur|galp|casa") ~ "Amurada a pared",
+      TRUE ~ "Otro"
+    ),
+    parque_plaza = replace_na(parque_plaza, "Sin dato"),
+    localidad = replace_na(localidad, "Sin dato")
+  )
+```
+
+```{r}
+#| label: resumen-general
+tibble(
+  Indicador = c("Puntos relevados", "Artefactos totales", "Localidades",
+                "Encuestadoras", "Período de relevamiento"),
+  Valor = c(
+    comma(nrow(df), big.mark = "."),
+    comma(sum(df$artefactos), big.mark = "."),
+    n_distinct(df$localidad[df$localidad != "Sin dato"]),
+    n_distinct(df$encuestadora),
+    paste(format(min(df$fecha), "%d/%m/%Y"), "–", format(max(df$fecha), "%d/%m/%Y"))
+  )
+) |> gt()
+```
+
+## Calidad de datos
+
+```{r}
+#| label: faltantes
+df |>
+  summarise(across(c(localidad, tipo, material, parque_plaza),
+                   ~ mean(is.na(.x) | .x == "Sin dato"))) |>
+  pivot_longer(everything(), names_to = "Variable", values_to = "% sin dato") |>
+  gt() |> fmt_percent(`% sin dato`, decimals = 1)
+```
+
+# Picos de luz por localidad
+
+```{r}
+#| label: tabla-localidad
+por_loc <- df |>
+  group_by(localidad) |>
+  summarise(puntos = n(), artefactos = sum(artefactos), .groups = "drop") |>
+  mutate(pct_artefactos = artefactos / sum(artefactos),
+         artef_por_punto = artefactos / puntos) |>
+  arrange(desc(artefactos))
+
+por_loc |>
+  gt() |>
+  cols_label(localidad = "Localidad", puntos = "Puntos", artefactos = "Artefactos",
+             pct_artefactos = "% del total", artef_por_punto = "Artefactos/punto") |>
+  fmt_number(c(puntos, artefactos), decimals = 0, sep_mark = ".") |>
+  fmt_percent(pct_artefactos, decimals = 1, dec_mark = ",") |>
+  fmt_number(artef_por_punto, decimals = 2, dec_mark = ",")
+```
+
+```{r}
+#| label: fig-localidad
+#| fig-cap: "Artefactos por localidad"
+#| fig-height: 7
+por_loc |>
+  ggplot(aes(artefactos, fct_reorder(localidad, artefactos))) +
+  geom_col(fill = "#2a6f97") +
+  geom_text(aes(label = comma(artefactos, big.mark = ".")), hjust = -0.15, size = 3) +
+  scale_x_continuous(expand = expansion(mult = c(0, 0.12))) +
+  labs(x = "Artefactos", y = NULL) +
+  theme_minimal()
+```
+
+::: {.callout-tip}
+Para comparar localidades de distinto tamaño, conviene unir esta tabla con la
+población del Censo 2023 (INE) y calcular **artefactos cada 1.000 habitantes**.
+:::
+
+# Tipos de luminaria
+
+```{r}
+#| label: fig-tipo
+#| fig-cap: "Distribución por tipo de luminaria (recodificado)"
+df |>
+  count(tipo_rec, wt = artefactos) |>
+  mutate(pct = n / sum(n)) |>
+  ggplot(aes(pct, fct_reorder(tipo_rec, pct))) +
+  geom_col(fill = "#2a6f97") +
+  geom_text(aes(label = percent(pct, accuracy = 0.1)), hjust = -0.15, size = 3.5) +
+  scale_x_continuous(labels = percent, expand = expansion(mult = c(0, 0.12))) +
+  labs(x = "% de artefactos", y = NULL) +
+  theme_minimal()
+```
+
+## Tipo por localidad
+
+```{r}
+#| label: fig-tipo-localidad
+#| fig-cap: "Composición de tipos de luminaria por localidad (%)"
+#| fig-height: 8
+df |>
+  count(localidad, tipo_rec, wt = artefactos) |>
+  group_by(localidad) |> mutate(pct = n / sum(n), total = sum(n)) |> ungroup() |>
+  ggplot(aes(pct, fct_reorder(localidad, total), fill = tipo_rec)) +
+  geom_col() +
+  scale_x_continuous(labels = percent) +
+  scale_fill_brewer(palette = "Set2") +
+  labs(x = NULL, y = NULL, fill = "Tipo") +
+  theme_minimal() + theme(legend.position = "top")
+```
+
+# Material de apoyo
+
+```{r}
+#| label: tabla-tipo-material
+df |>
+  count(tipo_rec, material_rec, wt = artefactos) |>
+  pivot_wider(names_from = material_rec, values_from = n, values_fill = 0) |>
+  gt(rowname_col = "tipo_rec") |>
+  grand_summary_rows(fns = list(Total = ~ sum(.)), fmt = ~ fmt_number(., decimals = 0, sep_mark = ".")) |>
+  fmt_number(everything(), decimals = 0, sep_mark = ".")
+```
+
+Los apoyos de **madera / palo** son un insumo útil para priorizar recambios.
+
+```{r}
+#| label: madera-localidad
+df |>
+  group_by(localidad) |>
+  summarise(puntos = n(), madera = sum(material_rec == "Madera"),
+            pct_madera = madera / puntos, .groups = "drop") |>
+  filter(madera > 0) |>
+  arrange(desc(pct_madera)) |>
+  gt() |> fmt_percent(pct_madera, decimals = 1, dec_mark = ",")
+```
+
+# Parques y plazas
+
+```{r}
+#| label: parques
+df |>
+  filter(parque_plaza != "Sin dato") |>
+  count(parque_plaza, tipo_rec, wt = artefactos) |>
+  group_by(parque_plaza) |> mutate(pct = n / sum(n)) |> ungroup() |>
+  ggplot(aes(parque_plaza, pct, fill = tipo_rec)) +
+  geom_col() +
+  scale_y_continuous(labels = percent) +
+  scale_fill_brewer(palette = "Set2") +
+  labs(x = "¿Dentro de parque o plaza?", y = NULL, fill = "Tipo") +
+  theme_minimal()
+```
+
+# Mapa
+
+```{r}
+#| label: mapa
+pts <- st_as_sf(df, coords = c("lon", "lat"), crs = 4326)
+pal <- colorFactor("Set2", pts$tipo_rec)
+
+leaflet(pts) |>
+  addProviderTiles(providers$CartoDB.Positron) |>
+  addCircleMarkers(radius = 2, stroke = FALSE, fillOpacity = 0.7,
+                   color = ~ pal(tipo_rec),
+                   popup = ~ paste0("<b>", localidad, "</b><br>", tipo_rec,
+                                    " / ", material_rec, "<br>Artefactos: ", artefactos),
+                   clusterOptions = markerClusterOptions(disableClusteringAtZoom = 15)) |>
+  addLegend(pal = pal, values = ~ tipo_rec, title = "Tipo")
+```
+
+# Observaciones (texto libre)
+
+```{r}
+#| label: observaciones
+df |>
+  filter(!is.na(observaciones)) |>
+  mutate(obs = str_to_lower(observaciones),
+         categoria = case_when(
+           str_detect(obs, "poda|follaje|árbol|arbol|rama") ~ "Requiere poda / follaje",
+           str_detect(obs, "apagad|no funciona|rot|quemad|sin foco") ~ "Falla / apagada",
+           str_detect(obs, "buen estado|perfecto") ~ "Buen estado",
+           str_detect(obs, "ruta|bicisenda|ciclov") ~ "Orientada a ruta / bicisenda",
+           TRUE ~ "Otras"
+         )) |>
+  count(categoria, sort = TRUE) |>
+  gt()
+```
+
+# Relevamiento (control de calidad)
+
+```{r}
+#| label: fig-avance
+#| fig-cap: "Avance acumulado del relevamiento"
+df |>
+  count(fecha) |>
+  mutate(acumulado = cumsum(n)) |>
+  ggplot(aes(fecha, acumulado)) +
+  geom_line(color = "#2a6f97", linewidth = 1) +
+  scale_y_continuous(labels = label_number(big.mark = ".")) +
+  labs(x = NULL, y = "Puntos relevados") +
+  theme_minimal()
+```
