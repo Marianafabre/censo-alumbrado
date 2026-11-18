@@ -1,4 +1,5 @@
 ---
+<<<<<<< HEAD
 title: "Relevamiento del Alumbrado Público"
 subtitle: "San José"
 author: ""
@@ -16,6 +17,37 @@ format:
     fig-width: 7
     fig-height: 4.5
     fig-pos: "H"
+=======
+title: "Censo de alumbrado público del departamento de San José - 2026"
+subtitle: "Relevamiento de luminarias"
+author: "Instituto Departamental de Estadísticas - Intendencia de San José"
+date: today
+date-format: "MMMM - YYYY"
+format:
+  html: default
+  pdf:
+    include-in-header:
+      text: |
+        \usepackage[bottom]{footmisc}
+        \usepackage{float}
+    documentclass: scrreprt
+    classoption: justified
+    fig-width: 7
+    fig-height: 5
+    fig-pos: "H"
+    tbl-cap-location: top
+    number-sections: true
+theme: paper
+code-fold: true
+editor: visual
+lang: "es-UY"
+urlcolor: blue
+linkcolor: blue
+toc: true
+toc-depth: 3
+number-sections: true
+booktabs: true
+>>>>>>> f77c529178001cb18953238b451e76419d50f48d
 execute:
   echo: false
   warning: false
@@ -26,32 +58,52 @@ execute:
 #| label: setup
 library(tidyverse)
 library(readxl)
-library(gt)
+library(kableExtra)
 library(scales)
 library(sf)
+<<<<<<< HEAD
 library(kableExtra)
+=======
+>>>>>>> f77c529178001cb18953238b451e76419d50f48d
 
 ruta <- "data/base_alumbrado.xlsx"
+
+<<<<<<< HEAD
+=======
+# Formatos numéricos (separador de miles "." y decimal ",")
+fmt_n <- function(x) comma(x, big.mark = ".", decimal.mark = ",")
+fmt_n_pct <- function(x, total) {
+  paste0(fmt_n(x), " (", percent(x / total, accuracy = 0.1, decimal.mark = ","), ")")
+}
+fmt_dec <- function(x, d = 1) {
+  format(round(x, d), nsmall = d, big.mark = ".", decimal.mark = ",")
+}
 ```
 
+>>>>>>> f77c529178001cb18953238b451e76419d50f48d
 ```{r}
 #| label: carga
 raw <- read_excel(ruta, guess_max = 20000)
 
 df <- raw |>
   transmute(
-    id          = ObjectID,
-    localidad   = Localidad,
-    tipo        = `Tipo de iluminaria`,
-    tipo_otro   = `Otro - Tipo de iluminaria`,
-    material    = `Material de apoyo de la luminaria`,
+    id            = ObjectID,
+    localidad     = Localidad,
+    tipo          = `Tipo de iluminaria`,
+    tipo_otro     = `Otro - Tipo de iluminaria`,
+    material      = `Material de apoyo de la luminaria`,
     material_otro = `Otro - Material de apoyo de la luminaria`,
+<<<<<<< HEAD
     artefactos  = as.integer(`Indique la cantidad de artefactos`),
     parque_plaza = `Luminaria dentro de Parque o Plaza`,
+=======
+    artefactos    = as.integer(`Indique la cantidad de artefactos`),
+    parque_plaza  = `Luminaria dentro de Parque o Plaza`,
+>>>>>>> f77c529178001cb18953238b451e76419d50f48d
     observaciones = Observaciones,
-    encuestadora = `Encuestadora:`,
-    fecha       = as.Date(CreationDate),
-    lon = x, lat = y
+    encuestadora  = `Encuestadora:`,
+    fecha         = as.Date(CreationDate),
+    lon = as.numeric(x), lat = as.numeric(y)
   ) |>
   mutate(
     # Recodificar las respuestas "other" usando el texto libre
@@ -70,16 +122,30 @@ df <- raw |>
       str_detect(str_to_lower(material_otro), "pared|amur|galp|casa") ~ "Amurada a pared",
       TRUE ~ "Otro"
     ),
+<<<<<<< HEAD
     ubicacion = if_else(parque_plaza %in% "Si", "Parque o plaza", "Alineación"),,
+=======
+    # Parque o plaza: solo los que responden "Si".
+    # El resto (respuesta "No" o vacía) es alumbrado de alineación en calle.
+    ubicacion = if_else(parque_plaza %in% "Si", "Parque o plaza", "Alineación"),
+>>>>>>> f77c529178001cb18953238b451e76419d50f48d
     localidad = replace_na(localidad, "Sin dato")
   )
+
+# Base de análisis: solo alumbrado público de calles (alineación)
+calle <- df |> filter(ubicacion == "Alineación")
 ```
 
+<<<<<<< HEAD
 ## Resultados generales
+=======
+# Resultados generales
+>>>>>>> f77c529178001cb18953238b451e76419d50f48d
 
 ```{r}
 
 #| label: resumen-general
+<<<<<<< HEAD
 fmt_n <- function(x) comma(x, big.mark = ".", decimal.mark = ",")
 fmt_n_pct <- function(x, total) {
   paste0(fmt_n(x), " (", percent(x / total, accuracy = 0.1, decimal.mark = ","), ")")
@@ -87,14 +153,24 @@ fmt_n_pct <- function(x, total) {
 
 n_picos <- nrow(df)
 n_artef <- sum(df$artefactos)
+=======
+n_picos <- nrow(df)
+>>>>>>> f77c529178001cb18953238b451e76419d50f48d
 picos_ub <- function(cat) sum(df$ubicacion == cat)
 
 tibble(
   Indicador = c("Picos relevados", "Artefactos totales", "Localidades",
+<<<<<<< HEAD
                 "Alineación", "Parques o plazas"),
   Valor = c(
     fmt_n(n_picos),
     fmt_n(n_artef),
+=======
+                "Alineación (calles)", "Parques o plazas"),
+  Valor = c(
+    fmt_n(n_picos),
+    fmt_n(sum(df$artefactos)),
+>>>>>>> f77c529178001cb18953238b451e76419d50f48d
     n_distinct(df$localidad[df$localidad != "Sin dato"]),
     fmt_n_pct(picos_ub("Alineación"), n_picos),
     fmt_n_pct(picos_ub("Parque o plaza"), n_picos)
@@ -113,6 +189,7 @@ tibble(
   column_spec(2, width = "4.5cm")
 ```
 
+<<<<<<< HEAD
 ### Picos de luz por localidad
 
 ```{r}
@@ -125,10 +202,25 @@ por_loc <- df |>
 
 fila_total <- por_loc |>
   summarise(picos = sum(picos), artefactos = sum(artefactos)) |>
+=======
+A partir de esta sección, todos los análisis consideran únicamente el alumbrado público ubicado en calles (alineación), es decir, se excluyen los picos ubicados dentro de parques o plazas.
+
+## Picos de luz por localidad
+
+```{r}
+#| label: tabla-localidad
+por_loc <- calle |>
+  count(localidad, name = "picos") |>
+  arrange(localidad == "Sin dato", desc(picos))
+
+fila_total <- por_loc |>
+  summarise(picos = sum(picos)) |>
+>>>>>>> f77c529178001cb18953238b451e76419d50f48d
   mutate(localidad = "Total")
 
 tabla_loc <- bind_rows(por_loc, fila_total) |>
   mutate(
+<<<<<<< HEAD
     pct_artefactos  = artefactos / sum(por_loc$artefactos),
     artef_por_pico  = artefactos / picos,
     picos           = fmt_n(picos),
@@ -143,15 +235,32 @@ tabla_loc |>
     caption   = "Picos de luz y artefactos según localidad",
     col.names = c("Localidad", "Picos", "Artefactos", "% del total de artefactos",
                   "Artefactos por pico")
+=======
+    pct_picos = percent(picos / sum(por_loc$picos), accuracy = 0.1, decimal.mark = ","),
+    picos     = fmt_n(picos)
+  ) |>
+  select(localidad, picos, pct_picos)
+
+tabla_loc |>
+  kbl(
+    align     = "lcc",
+    caption   = "Picos de luz de alineación según localidad",
+    col.names = c("Localidad", "Picos de luz", "% del total de picos")
+>>>>>>> f77c529178001cb18953238b451e76419d50f48d
   ) |>
   kable_styling(latex_options = "HOLD_position", full_width = FALSE,
                 position = "center", font_size = 9) |>
   column_spec(1, width = "4.5cm") |>
+<<<<<<< HEAD
   column_spec(2:5, width = "2cm") |>
+=======
+  column_spec(2:3, width = "2.5cm") |>
+>>>>>>> f77c529178001cb18953238b451e76419d50f48d
   row_spec(nrow(tabla_loc), bold = TRUE, background = "#f0f0f0")
 ```
 
 ```{r}
+<<<<<<< HEAD
 
 por_loc <- df |>
   count(localidad, name = "picos") |>
@@ -268,19 +377,148 @@ tabla_mat |>
            general_title = "Nota: ", footnote_as_chunk = TRUE, threeparttable = TRUE)
 ```
 
+=======
+#| label: fig-localidad
+#| fig-cap: "Picos de luz de alineación por localidad"
+#| fig-height: 7
+por_loc |>
+  ggplot(aes(picos, fct_reorder(localidad, picos))) +
+  geom_col(fill = "#2a6f97") +
+  geom_text(aes(label = fmt_n(picos)), hjust = -0.15, size = 3) +
+  scale_x_continuous(expand = expansion(mult = c(0, 0.12))) +
+  labs(x = "Picos de luz", y = NULL) +
+  theme_minimal()
+```
+
+## Tipos de luminaria
+
+```{r}
+#| label: tabla-tipo-localidad
+orden_tipos <- c("De brazo", "Colgante", "Farolas", "Reflector", "Solar", "Otro")
+
+tipo_loc <- calle |>
+  count(localidad, tipo_rec) |>
+  mutate(tipo_rec = factor(tipo_rec, levels = orden_tipos)) |>
+  arrange(tipo_rec) |>
+  pivot_wider(names_from = tipo_rec, values_from = n, values_fill = 0) |>
+  mutate(Total = rowSums(across(-localidad))) |>
+  arrange(localidad == "Sin dato", desc(Total))
+
+fila_total <- tipo_loc |>
+  summarise(across(-localidad, sum)) |>
+  mutate(localidad = "Total")
+
+tabla_tipo <- bind_rows(tipo_loc, fila_total) |>
+  mutate(across(-localidad, fmt_n))
+
+tabla_tipo |>
+  kbl(
+    align     = paste0("l", strrep("c", ncol(tabla_tipo) - 1)),
+    caption   = "Picos de luz de alineación según localidad y tipo de luminaria",
+    col.names = c("Localidad", names(tabla_tipo)[-1])
+  ) |>
+  kable_styling(latex_options = "HOLD_position", full_width = FALSE,
+                position = "center", font_size = 9) |>
+  column_spec(1, width = "4.2cm") |>
+  column_spec(2:ncol(tabla_tipo), width = "1.5cm") |>
+  column_spec(ncol(tabla_tipo), bold = TRUE) |>
+  row_spec(nrow(tabla_tipo), bold = TRUE, background = "#f0f0f0") |>
+  footnote(general = "Reflector y Solar surgen de recodificar las respuestas \"Otro\" a partir del texto libre.",
+           general_title = "Nota: ", footnote_as_chunk = TRUE, threeparttable = TRUE)
+```
+
+```{r}
+#| label: fig-tipo-localidad
+#| fig-cap: "Composición de tipos de luminaria de alineación por localidad (%)"
+#| fig-height: 8
+calle |>
+  count(localidad, tipo_rec) |>
+  group_by(localidad) |> mutate(pct = n / sum(n), total = sum(n)) |> ungroup() |>
+  ggplot(aes(pct, fct_reorder(localidad, total), fill = tipo_rec)) +
+  geom_col() +
+  scale_x_continuous(labels = percent) +
+  scale_fill_brewer(palette = "Set2") +
+  labs(x = NULL, y = NULL, fill = "Tipo") +
+  theme_minimal() + theme(legend.position = "top")
+```
+
+## Material de apoyo
+
+```{r}
+#| label: tabla-tipo-material
+orden_materiales <- c("Hormigón", "Metálico", "Madera", "Amurada a pared", "Otro", "Sin dato")
+
+tipo_mat <- calle |>
+  count(tipo_rec, material_rec) |>
+  mutate(material_rec = factor(material_rec, levels = orden_materiales),
+         tipo_rec = factor(tipo_rec, levels = orden_tipos)) |>
+  arrange(tipo_rec, material_rec) |>
+  pivot_wider(names_from = material_rec, values_from = n, values_fill = 0) |>
+  mutate(tipo_rec = as.character(tipo_rec),
+         Total = rowSums(across(-tipo_rec)))
+
+fila_total <- tipo_mat |>
+  summarise(across(-tipo_rec, sum)) |>
+  mutate(tipo_rec = "Total")
+
+tabla_mat <- bind_rows(tipo_mat, fila_total) |>
+  mutate(across(-tipo_rec, fmt_n))
+
+tabla_mat |>
+  kbl(
+    align     = paste0("l", strrep("c", ncol(tabla_mat) - 1)),
+    caption   = "Picos de luz de alineación según tipo de luminaria y material de apoyo",
+    col.names = c("Tipo de luminaria", names(tabla_mat)[-1])
+  ) |>
+  kable_styling(latex_options = "HOLD_position", full_width = FALSE,
+                position = "center", font_size = 9) |>
+  column_spec(1, width = "3cm") |>
+  column_spec(2:ncol(tabla_mat), width = "1.6cm") |>
+  column_spec(ncol(tabla_mat), bold = TRUE) |>
+  row_spec(nrow(tabla_mat), bold = TRUE, background = "#f0f0f0") |>
+  footnote(general = "Las luminarias colgantes no registran material de apoyo, ya que van suspendidas de cables.",
+           general_title = "Nota: ", footnote_as_chunk = TRUE, threeparttable = TRUE)
+```
+
+>>>>>>> f77c529178001cb18953238b451e76419d50f48d
 ```{r}
 
 #| label: madera-localidad
+<<<<<<< HEAD
 alin <- df |> filter(ubicacion == "Alineación")
 
 madera_loc <- alin |>
+=======
+madera_loc <- calle |>
+>>>>>>> f77c529178001cb18953238b451e76419d50f48d
   group_by(localidad) |>
   summarise(picos = n(), madera = sum(material_rec == "Madera"), .groups = "drop") |>
   filter(madera > 0) |>
   arrange(desc(madera / picos))
+<<<<<<< HEAD
 
 # El total considera todos los picos de alineación del departamento
 fila_total <- alin |>
+  summarise(picos = n(), madera = sum(material_rec == "Madera")) |>
+  mutate(localidad = "Total")
+
+tabla_madera <- bind_rows(madera_loc, fila_total) |>
+  mutate(
+    pct_madera = percent(madera / picos, accuracy = 0.1, decimal.mark = ","),
+    picos      = fmt_n(picos),
+    madera     = fmt_n(madera)
+  )
+
+tabla_madera |>
+  kbl(
+    align     = "lccc",
+    caption   = "Picos de luz de alineación con apoyo de madera según localidad",
+    col.names = c("Localidad", "Picos de alineación", "Con apoyo de madera",
+                  "% con apoyo de madera")
+=======
+
+# El total considera todos los picos de alineación del departamento
+fila_total <- calle |>
   summarise(picos = n(), madera = sum(material_rec == "Madera")) |>
   mutate(localidad = "Total")
 
@@ -303,13 +541,91 @@ tabla_madera |>
   column_spec(1, width = "4.5cm") |>
   column_spec(2:4, width = "2.5cm") |>
   row_spec(nrow(tabla_madera), bold = TRUE, background = "#f0f0f0") |>
-  footnote(general = "Se excluyen los picos ubicados en parques y plazas. Solo se muestran localidades con al menos un apoyo de madera; el total incluye todas las localidades.",
+  footnote(general = "Solo se muestran localidades con al menos un apoyo de madera; el total incluye todas las localidades.",
            general_title = "Nota: ", footnote_as_chunk = TRUE, threeparttable = TRUE)
 ```
 
-# Mapa
+# Análisis de cobertura del alumbrado
+
+## Picos de luz según población
 
 ```{r}
+#| label: tabla-poblacion
+# Población Censo 2023 (INE), con nombres ajustados a los de la base de alumbrado
+nombres_ine <- c(
+  "San José"       = "San José de Mayo",
+  "Ituzaingo"      = "Ituzaingó",
+  "P Valdez"       = "Puntas de Valdez",
+  "Gonzalez"       = "González",
+  "M Abrigo"       = "Mal Abrigo",
+  "18 de Julio"    = "18 de Julio (Pueblo Nuevo)",
+  "R peraza"       = "Rafael Peraza",
+  "Soler"          = "Juan Soler",
+  "Cufre"          = "Boca del Cufré",
+  "V. Maria"       = "Villa María",
+  "E Paullier"     = "Ecilda Paullier",
+  "Kiyu-Ordeig"    = "Kiyú - Ordeig",
+  "C Grande"       = "Cañada Grande",
+  "R del Pino"     = "Rincón del Pino",
+  "S Gregorio"     = "San Gregorio",
+  "C Quemada"      = "Carreta Quemada",
+  "Costas Pereyra" = "Costas de Pereira",
+  "Col Delta"      = "Colonia Delta"
+)
+
+poblacion <- read_excel("data/poblacion_x_loc23.xlsx") |>
+  rename(localidad = 1, poblacion = Total) |>
+  mutate(localidad = recode(localidad, !!!nombres_ine)) |>
+  select(localidad, poblacion)
+
+pob_loc <- calle |>
+  filter(localidad != "Sin dato") |>
+  count(localidad, name = "picos") |>
+  left_join(poblacion, by = "localidad") |>
+  arrange(desc(picos))
+
+# El total de población suma solo las localidades relevadas
+fila_total <- pob_loc |>
+  summarise(picos = sum(picos), poblacion = sum(poblacion, na.rm = TRUE)) |>
+  mutate(localidad = "Total")
+
+tabla_pob <- bind_rows(pob_loc, fila_total) |>
+  mutate(
+    picos_1000 = if_else(is.na(poblacion), "–", fmt_dec(picos / poblacion * 1000)),
+    hab_pico   = if_else(is.na(poblacion), "–", fmt_dec(poblacion / picos)),
+    poblacion  = if_else(is.na(poblacion), "–", fmt_n(poblacion)),
+    picos      = fmt_n(picos)
+  ) |>
+  select(localidad, poblacion, picos, picos_1000, hab_pico)
+
+tabla_pob |>
+  kbl(
+    align     = "lcccc",
+    caption   = "Picos de luz de alineación según población por localidad",
+    col.names = c("Localidad", "Población 2023", "Picos de luz",
+                  "Picos cada 1.000 hab.", "Habitantes por pico")
+>>>>>>> f77c529178001cb18953238b451e76419d50f48d
+  ) |>
+  kable_styling(latex_options = "HOLD_position", full_width = FALSE,
+                position = "center", font_size = 9) |>
+  column_spec(1, width = "4.5cm") |>
+<<<<<<< HEAD
+  column_spec(2:4, width = "2.5cm") |>
+  row_spec(nrow(tabla_madera), bold = TRUE, background = "#f0f0f0") |>
+  footnote(general = "Se excluyen los picos ubicados en parques y plazas. Solo se muestran localidades con al menos un apoyo de madera; el total incluye todas las localidades.",
+           general_title = "Nota: ", footnote_as_chunk = TRUE, threeparttable = TRUE)
+=======
+  column_spec(2:5, width = "2.2cm") |>
+  row_spec(nrow(tabla_pob), bold = TRUE, background = "#f0f0f0") |>
+  footnote(general = "Población: Censo 2023 (INE). No incluye población rural dispersa ni localidades sin relevamiento (Cerámicas, Cololó).",
+           general_title = "Fuente: ", footnote_as_chunk = TRUE, threeparttable = TRUE)
+>>>>>>> f77c529178001cb18953238b451e76419d50f48d
+```
+
+## Picos de luz según longitud de calles
+
+```{r}
+<<<<<<< HEAD
 
 #| label: calles
 # Normaliza nombres para cruzar ambas bases (sin tildes, mayúsculas, guiones sin espacios)
@@ -343,6 +659,38 @@ picos_calle <- df |>
   mutate(clave = normalizar(localidad)) |>
   left_join(metros_loc, by = "clave") |>
   select(-clave) |>
+=======
+#| label: calles
+# Ejes de calle urbanos (Intendencia de San José), pasados a UTM 21S para medir en metros
+urbanos <- st_read("data/EJES_DE_CALLE_URBANOS_vista.geojson", quiet = TRUE) |>
+  st_transform(32721)
+
+picos_utm <- calle |>
+  filter(localidad != "Sin dato") |>
+  st_as_sf(coords = c("lon", "lat"), crs = 4326) |>
+  st_transform(32721)
+
+# Cada tramo se asigna a la localidad del pico relevado más cercano
+idx <- st_nearest_feature(urbanos, picos_utm)
+
+urbanos <- urbanos |>
+  mutate(
+    localidad = picos_utm$localidad[idx],
+    dist_pico = as.numeric(st_distance(urbanos, picos_utm[idx, ], by_element = TRUE)),
+    metros    = as.numeric(st_length(geometry))
+  ) |>
+  filter(dist_pico <= 1000)   # descarta tramos lejos de toda localidad relevada
+
+metros_loc <- urbanos |>
+  st_drop_geometry() |>
+  group_by(localidad) |>
+  summarise(metros = sum(metros), .groups = "drop")
+
+picos_calle <- calle |>
+  filter(localidad != "Sin dato") |>
+  count(localidad, name = "picos") |>
+  left_join(metros_loc, by = "localidad") |>
+>>>>>>> f77c529178001cb18953238b451e76419d50f48d
   arrange(desc(picos))
 
 fila_total <- picos_calle |>
@@ -351,19 +699,30 @@ fila_total <- picos_calle |>
 
 tabla_calles <- bind_rows(picos_calle, fila_total) |>
   mutate(
+<<<<<<< HEAD
     picos_km     = picos / (metros / 1000),
     metros_pico  = metros / picos,
     km           = format(round(metros / 1000, 1), nsmall = 1, big.mark = ".", decimal.mark = ","),
     picos        = fmt_n(picos),
     picos_km     = format(round(picos_km, 1), nsmall = 1, decimal.mark = ","),
     metros_pico  = fmt_n(round(metros_pico))
+=======
+    picos_km    = fmt_dec(picos / (metros / 1000)),
+    metros_pico = fmt_n(round(metros / picos)),
+    km          = fmt_dec(metros / 1000),
+    picos       = fmt_n(picos)
+>>>>>>> f77c529178001cb18953238b451e76419d50f48d
   ) |>
   select(localidad, km, picos, picos_km, metros_pico)
 
 tabla_calles |>
   kbl(
     align     = "lcccc",
+<<<<<<< HEAD
     caption   = "Picos de luz de alineación según longitud de calles por localidad",
+=======
+    caption   = "Picos de luz de alineación según longitud de calles urbanas por localidad",
+>>>>>>> f77c529178001cb18953238b451e76419d50f48d
     col.names = c("Localidad", "Km de calles", "Picos de alineación",
                   "Picos por km", "Metros de calle por pico")
   ) |>
@@ -372,6 +731,7 @@ tabla_calles |>
   column_spec(1, width = "4.5cm") |>
   column_spec(2:5, width = "2.2cm") |>
   row_spec(nrow(tabla_calles), bold = TRUE, background = "#f0f0f0") |>
+<<<<<<< HEAD
   footnote(general = "Se consideran calles, calles internas, pasajes y peatonales; se excluyen rutas, tramos virtuales y senderos.",
            general_title = "Nota: ", footnote_as_chunk = TRUE, threeparttable = TRUE)
 ```
@@ -381,22 +741,106 @@ tabla_calles |>
 #| fig-cap: "Detalle: San José de Mayo"
 #| fig-height: 6
 pts |>
+=======
+  footnote(general = "Longitud de calles: capa Ejes de calle urbanos (Intendencia de San José). Cada tramo se asigna a la localidad del pico relevado más cercano.",
+           general_title = "Fuente: ", footnote_as_chunk = TRUE, threeparttable = TRUE)
+```
+
+## Calles sin iluminación
+
+```{r}
+#| label: calles-sin-luz
+radio <- 50   # distancia máxima (m) a un pico para considerar la calle iluminada
+
+# Área cubierta: círculo de 50 m alrededor de cada pico de alineación
+cobertura <- picos_utm |>
+  st_buffer(radio) |>
+  st_union()
+
+calles_loc <- urbanos |> select(localidad)
+
+# Se corta cada tramo en la parte dentro y la parte fuera del área cubierta
+con_luz <- st_intersection(calles_loc, cobertura) |>
+  st_collection_extract("LINESTRING") |>
+  mutate(estado = "Con iluminación")
+
+sin_luz <- st_difference(calles_loc, cobertura) |>
+  st_collection_extract("LINESTRING") |>
+  mutate(estado = "Sin iluminación")
+
+tramos <- bind_rows(con_luz, sin_luz) |>
+  mutate(metros = as.numeric(st_length(geometry)))
+
+luz_loc <- tramos |>
+  st_drop_geometry() |>
+  group_by(localidad) |>
+  summarise(
+    total   = sum(metros),
+    sin_luz = sum(metros[estado == "Sin iluminación"]),
+    .groups = "drop"
+  ) |>
+  arrange(desc(sin_luz))
+
+fila_total <- luz_loc |>
+  summarise(total = sum(total), sin_luz = sum(sin_luz)) |>
+  mutate(localidad = "Total")
+
+tabla_luz <- bind_rows(luz_loc, fila_total) |>
+  mutate(
+    pct_sin = percent(sin_luz / total, accuracy = 0.1, decimal.mark = ","),
+    con_luz = fmt_dec((total - sin_luz) / 1000),
+    sin_luz = fmt_dec(sin_luz / 1000),
+    total   = fmt_dec(total / 1000)
+  ) |>
+  select(localidad, total, con_luz, sin_luz, pct_sin)
+
+tabla_luz |>
+  kbl(
+    align     = "lcccc",
+    caption   = "Kilómetros de calles urbanas con y sin iluminación por localidad",
+    col.names = c("Localidad", "Km de calles", "Km con iluminación",
+                  "Km sin iluminación", "% sin iluminación")
+  ) |>
+  kable_styling(latex_options = "HOLD_position", full_width = FALSE,
+                position = "center", font_size = 9) |>
+  column_spec(1, width = "4.5cm") |>
+  column_spec(2:5, width = "2.2cm") |>
+  row_spec(nrow(tabla_luz), bold = TRUE, background = "#f0f0f0") |>
+  footnote(general = "Se considera sin iluminación todo tramo de calle a más de 50 m de un pico de alineación relevado.",
+           general_title = "Nota: ", footnote_as_chunk = TRUE, threeparttable = TRUE)
+```
+
+```{r}
+#| label: fig-mapa-sjm
+#| fig-cap: "Picos de luz de alineación según tipo de luminaria: San José de Mayo"
+#| fig-height: 6
+picos_utm |>
+>>>>>>> f77c529178001cb18953238b451e76419d50f48d
   filter(localidad == "San José de Mayo") |>
   ggplot() +
   geom_sf(aes(color = tipo_rec), size = 0.4, alpha = 0.8) +
   scale_color_brewer(palette = "Set2") +
   guides(color = guide_legend(override.aes = list(size = 3))) +
   labs(color = "Tipo") +
+<<<<<<< HEAD
   theme_minimal() +
   theme(legend.position = "bottom")
 ```
 
 # Observaciones
+=======
+  theme_void() +
+  theme(legend.position = "bottom")
+```
+
+# Estado de las luminarias
+>>>>>>> f77c529178001cb18953238b451e76419d50f48d
 
 ```{r}
 #| label: observaciones
-df |>
+obs <- calle |>
   filter(!is.na(observaciones)) |>
+<<<<<<< HEAD
   mutate(obs = str_to_lower(observaciones),
          categoria = case_when(
            str_detect(obs, "poda|follaje|árbol|arbol|rama") ~ "Requiere poda / follaje",
@@ -407,4 +851,50 @@ df |>
          )) |>
   count(categoria, sort = TRUE) |>
   gt()
+=======
+  mutate(
+    obs = observaciones |> str_to_lower() |> str_replace_all("\\s+", " ") |> str_trim(),
+    categoria = case_when(
+      str_detect(obs, "poda|follaje|árbol|arbol|arbok|arnol|srbol|rama|arborada") ~
+        "Requiere poda / follaje",
+      str_detect(obs, "apagad|no funciona|rot[oa]s?\\b|quemad|sin foco|no tiene foco|falta|averiad|desconectad|deteriorad|desgaste|antiguo|alumbra bajo|mal direccionado") ~
+        "Falla, faltante o deterioro",
+      str_detect(obs, "inclin|ladead|torcid|ca[ií]d|vertical|floj|desprendid|cable|t[eé]rmica") ~
+        "Columna o cableado en mal estado",
+      str_detect(obs, "particular|vecinos") ~
+        "Conexión particular a la red",
+      # Observaciones que no interesan para el informe
+      str_detect(obs, "buen|bue\\.|bien estado|perfecto|ruta|bici|bi isenda|ciclov") ~
+        "Excluir",
+      # El resto son observaciones descriptivas
+      TRUE ~ "Otras"
+    )
+  ) |>
+  filter(categoria != "Excluir")
+
+orden_obs <- c("Requiere poda / follaje", "Falla, faltante o deterioro",
+               "Columna o cableado en mal estado", "Conexión particular a la red")
+
+obs_cat <- obs |>
+  filter(categoria %in% orden_obs) |>
+  count(categoria) |>
+  mutate(categoria = factor(categoria, levels = orden_obs)) |>
+  arrange(categoria) |>
+  mutate(categoria = as.character(categoria))
+
+tabla_obs <- bind_rows(obs_cat, tibble(categoria = "Total", n = sum(obs_cat$n))) |>
+  mutate(n = fmt_n(n))
+
+tabla_obs |>
+  kbl(
+    align     = "lc",
+    caption   = "Picos de luz de calles con problemas a atender según tipo de problema",
+    col.names = c("Problema", "Picos")
+  ) |>
+  kable_styling(latex_options = "HOLD_position", full_width = FALSE,
+                position = "center", font_size = 9) |>
+  column_spec(1, width = "7cm") |>
+  column_spec(2, width = "2.5cm") |>
+  row_spec(nrow(tabla_obs), bold = TRUE, background = "#f0f0f0")
+>>>>>>> f77c529178001cb18953238b451e76419d50f48d
 ```
