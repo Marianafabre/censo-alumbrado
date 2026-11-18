@@ -391,7 +391,7 @@ pts |>
   theme(legend.position = "bottom")
 ```
 
-# Observaciones 
+# Observaciones
 
 ```{r}
 #| label: observaciones
