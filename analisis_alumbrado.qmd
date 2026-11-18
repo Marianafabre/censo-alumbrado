@@ -100,9 +100,27 @@ df <- raw |>
 calle <- df |> filter(ubicacion == "Alineación")
 ```
 
-# Presentación
+# Introducción
+
+El preesente informe elaborado por el Instituto Departamental de Estadísticas de la Intendencia de San José (IDE) es el resultado del relevamiento del alumbrado público de carácter departamental (gestionado por la Intendencia de San José), diseñado y supervisado por este Instituto a solicitud de las direcciones de Hacienda, Obras (área de Alumbrado Público) y la Coordinación de Tecnología.
+
+Además de otros objetivos específicos que se puedan derivar de este trabajo, el principal fue la geolocalización de los puntos de iluminación a los efectos de hacer más eficiente y justo el cobro de la tasa de alumbrado creada por decreto departamental número 3136/2016.
+
+El relevamiento, que tuvo carácter de Censo porque el objetivo fue enumerar el total de las luminarias del departamento, se realizó entre el 10 de agosto y el 12 de noviembre de 2026. El trabajo de campo fue realizado por funcionarias dependientes de la Dirección de Hacienda (área de Ingresos) y del IDE.
 
 # Aspectos metodológicos
+
+Las luminarias fueron relevadas en el territorio mediante observación directa y registradas a través de un formulario digital, Survey123, creado dentro de la plataforma ArcGis. El personal de campo recibió una instrucción específica con una instancia presencial y con la entrega de material de apoyo. De acuerdo a la dimensión de los centros urbanos, se asignaron o no áreas de relevamiento por encuestador. El relevamiento fue supervisado desde el IDE mediante el control de geolocalización e imágenes en la propia plataforma.
+
+Respecto a la terminología utilizada: según la ubicación de los puntos de iluminación, llamados "picos", se discriminan entre aquellos que están ubicados en calles, a los que llamamos "de alineación" (tomando prestado el concepto de la descripción del arbolado urbano), y por otro lado, los que están situados en "parques o plazas" .
+
+Para complementar el análisis se utilizaron además el Marco Censal 2023 del Instituto Nacional de Estadísticas y el Eje de Calles del departamento de San José, cuya fuente es la Intendencia.
+
+El informe siguiente contiene detalles del alumbrado por localidades, presentados en tablas y gráficos. Además se añaden tres indicadores: 1)picos de luz por kilómetros de extensión; 2) metros de calle por pico de luz y 3) población por picos de luz. La lectura por separado de estos indicadores permite tener una aproximación a la cobertura lumínica de cada localidad.
+
+Junto a este informe se entrega un editor que permite realizar eventuales modificaciones de algún atributo (ejemplo, cantidad de artefactos); un formulario digital para el ingreso de nuevas luminarias y dos bases de datos (una completa y otra solo con alumbrado de alineación), en formato excel con sus correspondientes coordenadas para que pueda ser integrado a un software espacial.
+
+El procesamiento y análisis fue realizado en R Estudio y el informe fue elaborado en el entorno Quarto.
 
 # Resultados generales
 
