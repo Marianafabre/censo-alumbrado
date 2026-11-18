@@ -1,5 +1,5 @@
 ---
-title: "Censo de alumbrado público del departamento de San José - 2026"
+title: "Alumbrado público del departamento de San José - 2026"
 subtitle: "Serie de informes IDE-San José"
 author: "Instituto Departamental de Estadísticas - Intendencia de San José"
 date: today
@@ -100,6 +100,10 @@ df <- raw |>
 calle <- df |> filter(ubicacion == "Alineación")
 ```
 
+# Presentación
+
+# Aspectos metodológicos
+
 # Resultados generales
 
 ```{r}
@@ -131,7 +135,9 @@ tibble(
   column_spec(2, width = "4.5cm")
 ```
 
-A partir de esta sección, todos los análisis consideran únicamente el alumbrado público de calles (alineación), es decir, se excluyen los `r fmt_n(picos_ub("Parque o plaza"))` picos ubicados dentro de parques o plazas.
+El relevamiento registró 10.797 picos de luz, con un total de 12.140 artefactos, distribuidos en 26 localidades del departamento. Del total, 9.664 picos (89,5%) corresponden a alumbrado de alineación en calles y 1.133 (10,5%) a luminarias ubicadas dentro de parques o plazas.
+
+A partir de esta sección, todos los análisis consideran únicamente el alumbrado público de calles (alineación), se excluyen los picos ubicados dentro de parques o plazas.
 
 ## Picos de luz por localidad
 
@@ -165,18 +171,7 @@ tabla_loc |>
   row_spec(nrow(tabla_loc), bold = TRUE, background = "#f0f0f0")
 ```
 
-```{r}
-#| label: fig-localidad
-#| fig-cap: "Picos de luz de alineación por localidad"
-#| fig-height: 7
-por_loc |>
-  ggplot(aes(picos, fct_reorder(localidad, picos))) +
-  geom_col(fill = "#2a6f97") +
-  geom_text(aes(label = fmt_n(picos)), hjust = -0.15, size = 3) +
-  scale_x_continuous(expand = expansion(mult = c(0, 0.12))) +
-  labs(x = "Picos de luz", y = NULL) +
-  theme_minimal()
-```
+El alumbrado de calles se concentra en las tres principales ciudades del departamento: San José de Mayo (3.129 picos; 32,4%), Ciudad del Plata (2.713; 28,1%) y Libertad (1.212; 12,5%), que en conjunto reúnen el 73% de los picos relevados. Les siguen Kiyú-Ordeig, Ecilda Paullier y Rodríguez, con entre 330 y 390 picos cada una. Las 20 localidades restantes tienen menos de 260 picos, y en nueve de ellas no se superan los 50.
 
 ## Tipos de luminaria
 
@@ -215,20 +210,7 @@ tabla_tipo |>
            general_title = "Nota: ", footnote_as_chunk = TRUE, threeparttable = TRUE)
 ```
 
-```{r}
-#| label: fig-tipo-localidad
-#| fig-cap: "Composición de tipos de luminaria de alineación por localidad (%)"
-#| fig-height: 8
-calle |>
-  count(localidad, tipo_rec) |>
-  group_by(localidad) |> mutate(pct = n / sum(n), total = sum(n)) |> ungroup() |>
-  ggplot(aes(pct, fct_reorder(localidad, total), fill = tipo_rec)) +
-  geom_col() +
-  scale_x_continuous(labels = percent) +
-  scale_fill_brewer(palette = "Set2") +
-  labs(x = NULL, y = NULL, fill = "Tipo") +
-  theme_minimal() + theme(legend.position = "top")
-```
+La luminaria de brazo es el tipo predominante: representa 8.683 picos (89,8% del alumbrado de calles) y es mayoritaria en todas las localidades. Las luminarias colgantes (620) se concentran casi exclusivamente en San José de Mayo (604), donde representan el 19,3% de sus picos. Las farolas (240) se ubican principalmente en San José de Mayo (157) y Libertad (44). Se destaca el caso de Raigón, donde 62 de sus 139 picos (44,6%) son luminarias solares, lo que corresponde a prácticamente todas las luminarias de este tipo relevadas en el departamento (63). Los reflectores (33) aparecen sobre todo en Kiyú-Ordeig (20).
 
 ## Material de apoyo
 
@@ -263,10 +245,10 @@ tabla_mat |>
   column_spec(1, width = "3cm") |>
   column_spec(2:ncol(tabla_mat), width = "1.6cm") |>
   column_spec(ncol(tabla_mat), bold = TRUE) |>
-  row_spec(nrow(tabla_mat), bold = TRUE, background = "#f0f0f0") |>
-  footnote(general = "Las luminarias colgantes no registran material de apoyo, ya que van suspendidas de cables.",
-           general_title = "Nota: ", footnote_as_chunk = TRUE, threeparttable = TRUE)
+  row_spec(nrow(tabla_mat), bold = TRUE, background = "#f0f0f0")
 ```
+
+El 83,5% de los picos de calle se apoya sobre columnas de hormigón (8.068) y el 7,7% sobre columnas metálicas (748). Las columnas metálicas se asocian principalmente a las farolas (223 de 240) y a la totalidad de las luminarias solares (63). Los 613 picos sin dato de material de apoyo corresponden en su totalidad a luminarias colgantes, que no tienen columna propia por estar suspendidas de cables.
 
 ```{r}
 #| label: madera-localidad
@@ -303,6 +285,8 @@ tabla_madera |>
   footnote(general = "Solo se muestran localidades con al menos un apoyo de madera; el total incluye todas las localidades.",
            general_title = "Nota: ", footnote_as_chunk = TRUE, threeparttable = TRUE)
 ```
+
+Se identificaron 194 picos con apoyo de madera, el 2% del alumbrado de calles. Libertad concentra más de la mitad de los casos (103), seguida por Rafael Peraza (17) y Ecilda Paullier (12). San José de Mayo (29) y Ciudad del Plata (14) registran cantidades absolutas relevantes, pero representan menos del 1% de sus picos.
 
 # Análisis de cobertura del alumbrado
 
@@ -373,6 +357,10 @@ tabla_pob |>
            general_title = "Fuente: ", footnote_as_chunk = TRUE, threeparttable = TRUE)
 ```
 
+En el conjunto de las localidades relevadas hay 93,6 picos de calle cada 1.000 habitantes, es decir, aproximadamente un pico cada 10,7 habitantes. San José de Mayo (86,4) y Ciudad del Plata (68,8) se ubican por debajo de ese promedio, en esta última hay un pico cada 14,5 habitantes, la menor dotación entre las ciudades principales. Libertad se ubica un poco por encima (105,7).
+
+Los valores más altos se registran en balnearios y localidades pequeñas, como Boca del Cufré (1.432,1), Kiyú-Ordeig (421,0) y La Boyada (381,0). En los balnearios, la población censal corresponde a residentes permanentes y no refleja la población de temporada, por lo que el indicador tiende a sobreestimar la dotación por habitante. En las localidades pequeñas, en cambio, el valor elevado responde a que una trama mínima de calles requiere cierta cantidad de luminarias independientemente de la población.
+
 ## Picos de luz según longitud de calles
 
 ```{r}
@@ -437,117 +425,15 @@ tabla_calles |>
            general_title = "Fuente: ", footnote_as_chunk = TRUE, threeparttable = TRUE)
 ```
 
-## Calles sin iluminación
+En la mayoría de las localidades se registra un pico de luz cada 40 a 105 metros de calle. Las localidades con mayor densidad son Puntas de Valdez (un pico cada 42 m), Libertad (47 m), Rafael Peraza (51 m), San José de Mayo y Raigón (54 m). En el otro extremo se ubican Ecilda Paullier y Juan Soler (105 m), Rodríguez (97 m) y Ciudad del Plata (88 m). Ciudad del Plata combina la menor dotación por habitante con una de las menores densidades por kilómetro, y es además la localidad con mayor extensión de calles urbanas (239,7 km), por lo que concentra el mayor déficit relativo de alumbrado.
 
-```{r}
-#| label: calles-sin-luz
-radio <- 50   # distancia máxima (m) a un pico para considerar la calle iluminada
+Cabe señalar que estos valores son promedios por localidad y no indican si la iluminación se distribuye de forma homogénea: una localidad puede tener áreas céntricas con alta densidad de luminarias y barrios con escasa o nula cobertura.
 
-# Área cubierta: círculo de 50 m alrededor de cada pico de alineación
-cobertura <- picos_utm |>
-  st_buffer(radio) |>
-  st_union()
-
-calles_loc <- urbanos |> select(localidad)
-
-# Se corta cada tramo en la parte dentro y la parte fuera del área cubierta
-con_luz <- st_intersection(calles_loc, cobertura) |>
-  st_collection_extract("LINESTRING") |>
-  mutate(estado = "Con iluminación")
-
-sin_luz <- st_difference(calles_loc, cobertura) |>
-  st_collection_extract("LINESTRING") |>
-  mutate(estado = "Sin iluminación")
-
-tramos <- bind_rows(con_luz, sin_luz) |>
-  mutate(metros = as.numeric(st_length(geometry)))
-
-luz_loc <- tramos |>
-  st_drop_geometry() |>
-  group_by(localidad) |>
-  summarise(
-    total   = sum(metros),
-    sin_luz = sum(metros[estado == "Sin iluminación"]),
-    .groups = "drop"
-  ) |>
-  arrange(desc(sin_luz))
-
-fila_total <- luz_loc |>
-  summarise(total = sum(total), sin_luz = sum(sin_luz)) |>
-  mutate(localidad = "Total")
-
-tabla_luz <- bind_rows(luz_loc, fila_total) |>
-  mutate(
-    pct_sin = percent(sin_luz / total, accuracy = 0.1, decimal.mark = ","),
-    con_luz = fmt_dec((total - sin_luz) / 1000),
-    sin_luz = fmt_dec(sin_luz / 1000),
-    total   = fmt_dec(total / 1000)
-  ) |>
-  select(localidad, total, con_luz, sin_luz, pct_sin)
-
-tabla_luz |>
-  kbl(
-    align     = "lcccc",
-    caption   = "Kilómetros de calles urbanas con y sin iluminación por localidad",
-    col.names = c("Localidad", "Km de calles", "Km con iluminación",
-                  "Km sin iluminación", "% sin iluminación")
-  ) |>
-  kable_styling(latex_options = "HOLD_position", full_width = FALSE,
-                position = "center", font_size = 9) |>
-  column_spec(1, width = "4.5cm") |>
-  column_spec(2:5, width = "2.2cm") |>
-  row_spec(nrow(tabla_luz), bold = TRUE, background = "#f0f0f0") |>
-  footnote(general = "Se considera sin iluminación todo tramo de calle a más de 50 m de un pico de alineación relevado.",
-           general_title = "Nota: ", footnote_as_chunk = TRUE, threeparttable = TRUE)
-```
-
-```{r}
-#| label: mapa-sin-luz-funcion
-mapa_luz <- function(loc) {
-  tramos |>
-    filter(localidad == loc) |>
-    ggplot() +
-    geom_sf(aes(color = estado, linewidth = estado)) +
-    scale_color_manual(values = c("Con iluminación" = "grey70",
-                                  "Sin iluminación" = "#d62728")) +
-    scale_linewidth_manual(values = c("Con iluminación" = 0.3,
-                                      "Sin iluminación" = 0.7)) +
-    labs(color = NULL, linewidth = NULL) +
-    theme_void() +
-    theme(legend.position = "bottom")
-}
-```
-
-```{r}
-#| label: fig-sin-luz-cdp
-#| fig-cap: "Calles con y sin iluminación: Ciudad del Plata"
-#| fig-height: 7
-mapa_luz("Ciudad del Plata")
-```
-
-```{r}
-#| label: fig-sin-luz-sjm
-#| fig-cap: "Calles con y sin iluminación: San José de Mayo"
-#| fig-height: 7
-mapa_luz("San José de Mayo")
-```
-
-```{r}
-#| label: fig-mapa-sjm
-#| fig-cap: "Picos de luz de alineación según tipo de luminaria: San José de Mayo"
-#| fig-height: 6
-picos_utm |>
-  filter(localidad == "San José de Mayo") |>
-  ggplot() +
-  geom_sf(aes(color = tipo_rec), size = 0.4, alpha = 0.8) +
-  scale_color_brewer(palette = "Set2") +
-  guides(color = guide_legend(override.aes = list(size = 3))) +
-  labs(color = "Tipo") +
-  theme_void() +
-  theme(legend.position = "bottom")
-```
+En el caso de Mangrullo, Colonia Delta y Cañada Grande no fue posible calcular los indicadores de longitud de calles, ya que la capa de ejes de calle urbanos de la Intendencia no incluye tramos en esas localidades. Por este motivo, en la tabla figuran sin dato (NA).
 
 # Estado de las luminarias
+
+En el formulario de relevamiento se incluyó un campo de observaciones, en el que las encuestadoras registraron aquello que consideraban relevante para describir o señalar sobre cada pico de luz. A partir de ese campo se seleccionaron las observaciones que reflejaban algún tipo de problema a atender, y se clasificaron según su contenido.
 
 ```{r}
 #| label: observaciones
@@ -598,3 +484,7 @@ tabla_obs |>
   column_spec(2, width = "2.5cm") |>
   row_spec(nrow(tabla_obs), bold = TRUE, background = "#f0f0f0")
 ```
+
+Se registraron 174 picos de calle con algún problema señalado. El más frecuente es el requerimiento de poda (124 casos; 71,3%), debido a que el follaje interrumpe o interfiere con la luminaria; se concentra en Libertad (37), Mal Abrigo (19) y Puntas de Valdez (12). Le siguen las fallas, faltantes o deterioro de la luminaria (24 casos), principalmente en San José de Mayo (10) y Ciudad del Plata (5), y los problemas en la columna o el cableado (22), con mayor presencia en Rafael Peraza (7) y San José de Mayo (6). Se identificaron además 4 conexiones particulares a la red de alumbrado público, todas en Ciudad del Plata.
+
+Dado que el campo de observaciones era opcional y de texto libre, estas cifras deben interpretarse como un mínimo, ya que el estado de cada luminaria quedó a criterio de lo que cada encuestadora decidió registrar.
