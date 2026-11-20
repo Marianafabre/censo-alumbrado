@@ -116,7 +116,7 @@ Respecto a la terminología utilizada: según la ubicación de los puntos de ilu
 
 El formulario incluyó además un campo de observaciones de texto libre, a partir del cual se identificaron los picos con algún problema a atender (necesidad de poda, fallas, estado de la columna, entre otros).
 
-Pa complementar el análisis se utilizaron además el Marco Censal 2023 del Instituto Nacional de Estadística y el Eje de Calles urbanos del departamento de San José, cuya fuente es la Intendencia.
+Para complementar el análisis se utilizaron además el Marco Censal 2023 del Instituto Nacional de Estadística y el Eje de Calles Urbanos del departamento de San José, cuya fuente es la Intendencia.
 
 El informe siguiente contiene detalles del alumbrado por localidades, presentados en tablas y gráficos. Además se añaden tres indicadores: 1) picos cada 1.000 habitantes; 2) habitantes por pico y 3) metros de calle por pico. La lectura por conjunta de estos indicadores permite tener una aproximación a la cobertura lumínica de cada localidad.
 
