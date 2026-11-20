@@ -451,6 +451,133 @@ Cabe señalar que estos valores son promedios por localidad y no indican si la i
 
 En el caso de Mangrullo, Colonia Delta y Cañada Grande no fue posible calcular los indicadores de longitud de calles, ya que la capa de ejes de calle urbanos de la Intendencia no incluye tramos en esas localidades. Por este motivo, en la tabla figuran sin dato (NA).
 
+## Cobertura por segmento censal
+
+Para las tres ciudades principales se calcularon los indicadores a nivel de segmento censal (INE, Censo 2023), lo que permite observar las diferencias de cobertura dentro de cada ciudad.
+
+```{r}
+
+#| label: segmentos
+ciudades <- c("SAN JOSE DE MAYO" = "San José de Mayo",
+              "LIBERTAD"         = "Libertad",
+              "CIUDAD DEL PLATA" = "Ciudad del Plata")
+
+# Segmentos censales 2023 (INE) de las tres ciudades
+segmentos <- st_read("data/segmentos_3ciudades.gpkg", quiet = TRUE) |>
+  filter(NOMLOC %in% names(ciudades)) |>
+  st_transform(32721) |>
+  st_make_valid() |>
+  mutate(ciudad = unname(ciudades[NOMLOC])) |>
+  select(CODSEG, ciudad, poblacion = POB_TOT_23)
+
+ejes <- st_read("data/EJES_DE_CALLE_URBANOS_vista.geojson", quiet = TRUE) |>
+  st_transform(32721) |>
+  select(geometry)
+
+# Metros de calle dentro de cada segmento
+metros_seg <- st_intersection(ejes, segmentos) |>
+  mutate(metros = as.numeric(st_length(geometry))) |>
+  st_drop_geometry() |>
+  group_by(CODSEG) |>
+  summarise(metros = sum(metros), .groups = "drop")
+
+# Picos de alineación dentro de cada segmento
+picos_seg <- calle |>
+  st_as_sf(coords = c("lon", "lat"), crs = 4326) |>
+  st_transform(32721) |>
+  st_join(segmentos, join = st_within) |>
+  st_drop_geometry() |>
+  filter(!is.na(CODSEG)) |>
+  count(CODSEG, name = "picos")
+
+seg <- segmentos |>
+  left_join(metros_seg, by = "CODSEG") |>
+  left_join(picos_seg, by = "CODSEG") |>
+  mutate(
+    metros = replace_na(metros, 0),
+    picos  = replace_na(picos, 0),
+    metros_pico = if_else(picos > 0, metros / picos, NA_real_),
+    picos_1000  = picos / poblacion * 1000
+  )
+
+# Resumen por ciudad
+resumen_seg <- seg |>
+  st_drop_geometry() |>
+  group_by(ciudad) |>
+  summarise(
+    segmentos = n(),
+    km        = sum(metros) / 1000,
+    picos     = sum(picos),
+    .groups   = "drop"
+  ) |>
+  arrange(desc(picos))
+
+resumen_seg |>
+  mutate(
+    km    = fmt_dec(km),
+    picos = fmt_n(picos)
+  ) |>
+  kbl(
+    align     = "lccc",
+    caption   = "Cobertura del alumbrado de alineación por segmento censal en las principales ciudades",
+    col.names = c("Ciudad", "Segmentos", "Km de calles", "Picos de alineación")
+  ) |>
+  kable_styling(latex_options = "HOLD_position", full_width = FALSE,
+                position = "center", font_size = 9) |>
+  column_spec(1, width = "4cm") |>
+  column_spec(2:4, width = "2.5cm") |>
+  footnote(general = "Segmentos censales: INE, Censo 2023. Se consideran los picos y tramos de calle ubicados dentro de cada segmento.",
+           general_title = "Fuente: ", footnote_as_chunk = TRUE, threeparttable = TRUE)
+```
+
+```{r}
+
+#| label: mapa-seg-funcion
+mapa_seg <- function(ciu) {
+  datos <- seg |>
+    filter(ciudad == ciu) |>
+    mutate(clase = cut(metros_pico,
+                       breaks = c(0, 40, 60, 80, 100, Inf),
+                       labels = c("Menos de 40", "40 a 60", "60 a 80", "80 a 100", "Más de 100")),
+           clase = fct_na_value_to_level(clase, "Sin picos"))
+  
+  ggplot() +
+    geom_sf(data = datos, aes(fill = clase), color = "white", linewidth = 0.3) +
+    geom_sf(data = st_crop(ejes, st_bbox(datos)), color = "grey40", linewidth = 0.1) +
+    scale_fill_manual(values = c("Menos de 40" = "#1a9641", "40 a 60" = "#a6d96a",
+                                 "60 a 80" = "#ffffbf", "80 a 100" = "#fdae61",
+                                 "Más de 100" = "#d7191c", "Sin picos" = "grey80"),
+                      drop = FALSE) +
+    labs(fill = "Metros de calle por pico") +
+    theme_void() +
+    theme(legend.position = "bottom")
+}
+```
+
+```{r}
+
+#| label: fig-seg-sjm
+#| fig-cap: "Metros de calle por pico de luz según segmento censal: San José de Mayo"
+#| fig-height: 7
+mapa_seg("San José de Mayo")
+```
+
+```{r}
+#| label: fig-seg-cdp
+#| fig-cap: "Metros de calle por pico de luz según segmento censal: Ciudad del Plata"
+#| fig-height: 7
+mapa_seg("Ciudad del Plata")
+```
+
+```{r}
+#| label: fig-seg-lib
+#| fig-cap: "Metros de calle por pico de luz según segmento censal: Libertad"
+#| fig-height: 7
+mapa_seg("Libertad")
+```
+
+En Ciudad del Plata se observa la mayor heterogeneidad: 9 de sus 30 segmentos superan los 100 metros de calle por pico y uno no registra picos; en los dos segmentos con menor cobertura la distancia promedio supera los 190 metros. En San José de Mayo, 31 de sus 37 segmentos se ubican entre 25 y 70 metros por pico, y los valores más altos corresponden a segmentos de mayor superficie. En Libertad, 9 de sus 10 segmentos se ubican por debajo de los 60 metros por pico. Cabe señalar que 187 picos de alineación de Libertad se encuentran fuera de los segmentos urbanos definidos por el INE, por lo que no se incluyen en este análisis.
+
 # Estado de las luminarias
 
 En el formulario de relevamiento se incluyó un campo de observaciones, en el que las encuestadoras registraron aquello que consideraban relevante para describir o señalar sobre cada pico de luz. A partir de ese campo se seleccionaron las observaciones que reflejaban algún tipo de problema a atender, y se clasificaron según su contenido.
