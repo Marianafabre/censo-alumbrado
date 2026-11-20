@@ -453,7 +453,7 @@ En el caso de Mangrullo, Colonia Delta y Cañada Grande no fue posible calcular 
 
 ## Cobertura por segmento censal
 
-Para las tres ciudades principales se calcularon los indicadores a nivel de segmento censal (INE, Censo 2023), lo que permite observar las diferencias de cobertura dentro de cada ciudad. R mugriento
+Para las tres ciudades principales se calcularon los indicadores a nivel de segmento censal (INE, Censo 2023), lo que permite observar las diferencias de cobertura dentro de cada ciudad.
 
 ```{r}
 
