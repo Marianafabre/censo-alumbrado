@@ -531,7 +531,6 @@ resumen_seg |>
 ```
 
 ```{r}
-
 #| label: mapa-seg-funcion
 mapa_seg <- function(ciu) {
   datos <- seg |>
@@ -555,9 +554,9 @@ mapa_seg <- function(ciu) {
 ```
 
 ```{r}
-
 #| label: fig-seg-sjm
 #| fig-cap: "Metros de calle por pico de luz según segmento censal: San José de Mayo"
+#| fig-cap-location: top
 #| fig-height: 7
 mapa_seg("San José de Mayo")
 ```
