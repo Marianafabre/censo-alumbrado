@@ -564,6 +564,7 @@ mapa_seg("San José de Mayo")
 ```{r}
 #| label: fig-seg-cdp
 #| fig-cap: "Metros de calle por pico de luz según segmento censal: Ciudad del Plata"
+#| fig-cap-location: top
 #| fig-height: 7
 mapa_seg("Ciudad del Plata")
 ```
@@ -571,11 +572,16 @@ mapa_seg("Ciudad del Plata")
 ```{r}
 #| label: fig-seg-lib
 #| fig-cap: "Metros de calle por pico de luz según segmento censal: Libertad"
+#| fig-cap-location: top
 #| fig-height: 7
 mapa_seg("Libertad")
 ```
 
-En Ciudad del Plata se observa la mayor heterogeneidad: 9 de sus 30 segmentos superan los 100 metros de calle por pico y uno no registra picos; en los dos segmentos con menor cobertura la distancia promedio supera los 190 metros. En San José de Mayo, 31 de sus 37 segmentos se ubican entre 25 y 70 metros por pico, y los valores más altos corresponden a segmentos de mayor superficie. En Libertad, 9 de sus 10 segmentos se ubican por debajo de los 60 metros por pico. Cabe señalar que 187 picos de alineación de Libertad se encuentran fuera de los segmentos urbanos definidos por el INE, por lo que no se incluyen en este análisis.
+En Ciudad del Plata se observa la mayor heterogeneidad: 9 de sus 30 segmentos superan los 100 metros de calle por pico y uno no registra picos; en los dos segmentos con menor cobertura la distancia promedio supera los 190 metros. En Ciudad del Plata la población que reside en los segmentos con menor cobertura lumínica (rojo) se estima en .... personas.
+
+En San José de Mayo, 31 de sus 37 segmentos se ubican entre 25 y 70 metros por pico, y los valores más altos corresponden a segmentos de mayor superficie. La población que reside en la zona pintada de rojo se estima en ......
+
+En Libertad, 9 de sus 10 segmentos se ubican por debajo de los 60 metros por pico. Cabe señalar que 187 picos de alineación de Libertad se encuentran fuera de los segmentos urbanos definidos por el INE, por lo que no se incluyen en este análisis. La población de Libertad que reside en la zona pinta de rojo se estima en...
 
 # Estado de las luminarias
 
