@@ -453,7 +453,7 @@ En el caso de Mangrullo, Colonia Delta y Cañada Grande no fue posible calcular 
 
 ## Cobertura por segmento censal
 
-Para las tres ciudades principales se calcularon los indicadores a nivel de segmento censal (INE, Censo 2023), lo que permite observar las diferencias de cobertura dentro de cada ciudad.
+Para las tres ciudades principales se calcularon los indicadores a nivel de segmento censal (INE, Censo 2023), lo que permite observar las diferencias de cobertura dentro de cada ciudad. R mugriento
 
 ```{r}
 
@@ -555,9 +555,9 @@ mapa_seg <- function(ciu) {
 ```
 
 ```{r}
+
 #| label: fig-seg-sjm
 #| fig-cap: "Metros de calle por pico de luz según segmento censal: San José de Mayo"
-#| fig-cap-location: top
 #| fig-height: 7
 mapa_seg("San José de Mayo")
 ```
@@ -565,7 +565,6 @@ mapa_seg("San José de Mayo")
 ```{r}
 #| label: fig-seg-cdp
 #| fig-cap: "Metros de calle por pico de luz según segmento censal: Ciudad del Plata"
-#| fig-cap-location: top
 #| fig-height: 7
 mapa_seg("Ciudad del Plata")
 ```
@@ -573,7 +572,6 @@ mapa_seg("Ciudad del Plata")
 ```{r}
 #| label: fig-seg-lib
 #| fig-cap: "Metros de calle por pico de luz según segmento censal: Libertad"
-#| fig-cap-location: top
 #| fig-height: 7
 mapa_seg("Libertad")
 ```
