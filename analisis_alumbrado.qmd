@@ -1,6 +1,5 @@
 ---
-title: "Alumbrado público del departamento de San José - 2026"
-subtitle: "Serie de informes IDE-San José"
+title: "Alumbrado público de San José - 2026"
 author: "Instituto Departamental de Estadísticas - Intendencia de San José"
 date: today
 date-format: "MMMM - YYYY"
@@ -118,11 +117,11 @@ El formulario incluyó además un campo de observaciones de texto libre, a parti
 
 Para complementar el análisis se utilizaron además el Marco Censal 2023 del Instituto Nacional de Estadística y el Eje de Calles Urbanos del departamento de San José, cuya fuente es la Intendencia.
 
-El informe siguiente contiene detalles del alumbrado por localidades, presentados en tablas y gráficos. Además se añaden tres indicadores: 1) picos cada 1.000 habitantes; 2) habitantes por pico y 3) metros de calle por pico. La lectura por conjunta de estos indicadores permite tener una aproximación a la cobertura lumínica de cada localidad.
+El informe siguiente contiene detalles del alumbrado por localidades, presentados en tablas y gráficos. Además se añaden tres indicadores: 1) picos cada 1.000 habitantes; 2) habitantes por pico y 3) metros de calle por pico. La lectura conjunta de estos indicadores permite tener una aproximación a la cobertura lumínica de cada localidad.
 
-Junto a este informe se entrega un editor que permite realizar eventuales modificaciones de algún atributo (ejemplo, cantidad de artefactos); un formulario digital para el ingreso de nuevas luminarias y dos bases de datos (una completa y otra solo con alumbrado de alineación), en formato excel con sus correspondientes coordenadas para que pueda ser integrado a un software espacial.
+Junto a este informe se entregan: un [mapa web interactivo](https://arcg.is/019v8v0) que permite visualizar los picos de luz relevados, las calles con y sin iluminación y los indicadores de cobertura por localidad y por segmento censal; un editor que permite realizar eventuales modificaciones de algún atributo (por ejemplo, la cantidad de artefactos); un formulario digital para el ingreso de nuevas luminarias, y dos bases de datos en formato Excel (una completa y otra solo con el alumbrado de alineación), con sus correspondientes coordenadas para que puedan ser integradas a un software de información geográfica.
 
-Se advierte que el relevamiento de alumbrado en parques y plazas de Ciudad de Plata no se pudo completar.
+Se advierte que el relevamiento de alumbrado en parques y plazas de Ciudad del Plata no se pudo completar.
 
 El procesamiento y análisis fue realizado en RStudio y el informe fue elaborado en el entorno Quarto.
 
@@ -579,11 +578,11 @@ mapa_seg("Ciudad del Plata")
 mapa_seg("Libertad")
 ```
 
-En Ciudad del Plata se observa la mayor heterogeneidad: 9 de sus 30 segmentos superan los 100 metros de calle por pico y uno no registra picos; en los dos segmentos con menor cobertura la distancia promedio supera los 190 metros. En Ciudad del Plata la población que reside en los segmentos con menor cobertura lumínica (rojo) se estima en .... personas.
+En Ciudad del Plata se observa la mayor heterogeneidad: 9 de sus 30 segmentos superan los 100 metros de calle por pico y uno no registra picos; en los dos segmentos con menor cobertura la distancia promedio supera los 190 metros. En Ciudad del Plata, la población que reside en los segmentos con menor cobertura lumínica (más de 100 metros de calle por pico) se estima en 12.064 personas, el 30,6% de la población de la ciudad.
 
-En San José de Mayo, 31 de sus 37 segmentos se ubican entre 25 y 70 metros por pico, y los valores más altos corresponden a segmentos de mayor superficie. La población que reside en la zona pintada de rojo se estima en ......
+En San José de Mayo, 31 de sus 37 segmentos se ubican entre 25 y 70 metros por pico, y los valores más altos corresponden a segmentos de mayor superficie. La población que reside en los segmentos con menor cobertura se estima en 1.871 personas (5,2% de la población de la ciudad).
 
-En Libertad, 9 de sus 10 segmentos se ubican por debajo de los 60 metros por pico. Cabe señalar que 187 picos de alineación de Libertad se encuentran fuera de los segmentos urbanos definidos por el INE, por lo que no se incluyen en este análisis. La población de Libertad que reside en la zona pinta de rojo se estima en...
+En Libertad, 9 de sus 10 segmentos se ubican por debajo de los 60 metros por pico. Cabe señalar que 187 picos de alineación de Libertad se encuentran fuera de los segmentos urbanos definidos por el INE, por lo que no se incluyen en este análisis. La población de Libertad que reside en el único segmento con menor cobertura se estima en 297 personas (2,6% de la población de la ciudad).
 
 # Estado de las luminarias
 
