@@ -6,6 +6,7 @@ date-format: "MMMM - YYYY"
 format:
   html: default
   pdf:
+    papersize: a4
     include-in-header:
       text: |
         \usepackage[bottom]{footmisc}
@@ -15,6 +16,7 @@ format:
     fig-width: 7
     fig-height: 5
     fig-pos: "H"
+    fig-cap-location: top
     tbl-cap-location: top
     number-sections: true
 theme: paper
@@ -192,7 +194,7 @@ tabla_loc |>
   row_spec(nrow(tabla_loc), bold = TRUE, background = "#f0f0f0")
 ```
 
-El alumbrado de calles se concentra en las tres principales ciudades del departamento: San José de Mayo (3.129 picos; 32,4%), Ciudad del Plata (2.713; 28,1%) y Libertad (1.212; 12,5%), que en conjunto reúnen el 73% de los picos relevados. Les siguen Kiyú-Ordeig, Ecilda Paullier y Rodríguez, con entre 330 y 390 picos cada una. Las 20 localidades restantes tienen menos de 260 picos, y en nueve de ellas no se superan los 50.
+El alumbrado de calles se concentra en las tres principales ciudades del departamento: San José de Mayo (3.133 picos; 32,4%), Ciudad del Plata (2.713; 28,1%) y Libertad (1.212; 12,5%), que en conjunto reúnen el 73% de los picos relevados. Les siguen Kiyú-Ordeig, Ecilda Paullier y Rodríguez, con entre 330 y 390 picos cada una. Las 20 localidades restantes tienen menos de 260 picos, y en nueve de ellas no se superan los 50.
 
 ## Tipos de luminaria
 
@@ -227,11 +229,11 @@ tabla_tipo |>
   column_spec(2:ncol(tabla_tipo), width = "1.5cm") |>
   column_spec(ncol(tabla_tipo), bold = TRUE) |>
   row_spec(nrow(tabla_tipo), bold = TRUE, background = "#f0f0f0") |>
-  footnote(general = "Reflector y Solar surgen de recodificar las respuestas \"Otro\" a partir del texto libre.",
+  footnote(general = "Reflector y Solar surgen de recodificar las respuestas 'Otro' a partir del texto libre.",
            general_title = "Nota: ", footnote_as_chunk = TRUE, threeparttable = TRUE)
 ```
 
-La luminaria de brazo es el tipo predominante: representa 8.683 picos (89,8% del alumbrado de calles) y es mayoritaria en todas las localidades. Las luminarias colgantes (620) se concentran casi exclusivamente en San José de Mayo (604), donde representan el 19,3% de sus picos. Las farolas (240) se ubican principalmente en San José de Mayo (157) y Libertad (44). Se destaca el caso de Raigón, donde 62 de sus 139 picos (44,6%) son luminarias solares, lo que corresponde a prácticamente todas las luminarias de este tipo relevadas en el departamento (63). Los reflectores (33) aparecen sobre todo en Kiyú-Ordeig (20).
+La luminaria de brazo es el tipo predominante: representa 8.683 picos (89,8% del alumbrado de calles) y es mayoritaria en todas las localidades. Las luminarias colgantes (620) se concentran casi exclusivamente en San José de Mayo (604), donde representan el 19,3% de sus picos. Las farolas (240) se ubican principalmente en San José de Mayo (159) y Libertad (44). Se destaca el caso de Raigón, donde 62 de sus 139 picos (44,6%) son luminarias solares, lo que corresponde a prácticamente todas las luminarias de este tipo relevadas en el departamento (63). Los reflectores (33) aparecen sobre todo en Kiyú-Ordeig (20).
 
 ## Material de apoyo
 
@@ -378,7 +380,7 @@ tabla_pob |>
            general_title = "Fuente: ", footnote_as_chunk = TRUE, threeparttable = TRUE)
 ```
 
-En el conjunto de las localidades relevadas hay 93,6 picos de calle cada 1.000 habitantes, es decir, aproximadamente un pico cada 10,7 habitantes. San José de Mayo (86,4) y Ciudad del Plata (68,8) se ubican por debajo de ese promedio, en esta última hay un pico cada 14,5 habitantes, la menor dotación entre las ciudades principales. Libertad se ubica un poco por encima (105,7).
+En el conjunto de las localidades relevadas hay 93,7 picos de calle cada 1.000 habitantes, es decir, aproximadamente un pico cada 10,7 habitantes. San José de Mayo (86,5) y Ciudad del Plata (68,8) se ubican por debajo de ese promedio; en esta última hay un pico cada 14,5 habitantes, la menor dotación entre las ciudades principales. Libertad se ubica un poco por encima (105,7).
 
 Los valores más altos se registran en balnearios y localidades pequeñas, como Boca del Cufré (1.432,1), Kiyú-Ordeig (421,0) y La Boyada (381,0). En los balnearios, la población censal corresponde a residentes permanentes y no refleja la población de temporada, por lo que el indicador tiende a sobreestimar la dotación por habitante. En las localidades pequeñas, en cambio, el valor elevado responde a que una trama mínima de calles requiere cierta cantidad de luminarias independientemente de la población.
 
@@ -423,9 +425,9 @@ fila_total <- picos_calle |>
 
 tabla_calles <- bind_rows(picos_calle, fila_total) |>
   mutate(
-    picos_km    = fmt_dec(picos / (metros / 1000)),
-    metros_pico = fmt_n(round(metros / picos)),
-    km          = fmt_dec(metros / 1000),
+    picos_km    = if_else(is.na(metros), "–", fmt_dec(picos / (metros / 1000))),
+    metros_pico = if_else(is.na(metros), "–", fmt_n(round(metros / picos))),
+    km          = if_else(is.na(metros), "–", fmt_dec(metros / 1000)),
     picos       = fmt_n(picos)
   ) |>
   select(localidad, km, picos, picos_km, metros_pico)
@@ -446,18 +448,19 @@ tabla_calles |>
            general_title = "Fuente: ", footnote_as_chunk = TRUE, threeparttable = TRUE)
 ```
 
-En la mayoría de las localidades se registra un pico de luz cada 40 a 105 metros de calle. Las localidades con mayor densidad son Puntas de Valdez (un pico cada 42 m), Libertad (47 m), Rafael Peraza (51 m), San José de Mayo y Raigón (54 m). En el otro extremo se ubican Ecilda Paullier y Juan Soler (105 m), Rodríguez (97 m) y Ciudad del Plata (88 m). Ciudad del Plata combina la menor dotación por habitante con una de las menores densidades por kilómetro, y es además la localidad con mayor extensión de calles urbanas (239,7 km), por lo que concentra el mayor déficit relativo de alumbrado.
+En las localidades con más de 5 km de calles urbanas, la distancia promedio entre picos va de 42 a 183 metros de calle. Las localidades con mayor densidad son Puntas de Valdez (un pico cada 42 m), Libertad (47 m), Rafael Peraza (51 m), San José de Mayo y Raigón (54 m). En el otro extremo se ubican Mal Abrigo (183 m), Ituzaingó (152 m), 18 de Julio (123 m) y Capurro (118 m), seguidas por Ecilda Paullier y Juan Soler (105 m). Entre las tres ciudades principales, Ciudad del Plata (88 m) combina la menor dotación por habitante con la menor densidad por kilómetro, y es además la localidad con mayor extensión de calles urbanas (239,7 km), por lo que concentra el mayor déficit relativo de alumbrado.
+
+En las localidades más pequeñas (Rincón del Pino, Costas de Pereira, Radial, Carreta Quemada, La Boyada y San Gregorio), la capa de ejes urbanos registra menos de 2 km de calles, por lo que los indicadores por longitud deben tomarse con cautela.
 
 Cabe señalar que estos valores son promedios por localidad y no indican si la iluminación se distribuye de forma homogénea: una localidad puede tener áreas céntricas con alta densidad de luminarias y barrios con escasa o nula cobertura.
 
-En el caso de Mangrullo, Colonia Delta y Cañada Grande no fue posible calcular los indicadores de longitud de calles, ya que la capa de ejes de calle urbanos de la Intendencia no incluye tramos en esas localidades. Por este motivo, en la tabla figuran sin dato (NA).
+En el caso de Mangrullo, Colonia Delta y Cañada Grande no fue posible calcular los indicadores de longitud de calles, ya que la capa de ejes de calle urbanos de la Intendencia no incluye tramos en esas localidades. Por este motivo, en la tabla figuran sin dato (--).
 
 ## Cobertura por segmento censal
 
 Para las tres ciudades principales se calcularon los indicadores a nivel de segmento censal (INE, Censo 2023), lo que permite observar las diferencias de cobertura dentro de cada ciudad.
 
 ```{r}
-
 #| label: segmentos
 ciudades <- c("SAN JOSE DE MAYO" = "San José de Mayo",
               "LIBERTAD"         = "Libertad",
@@ -545,9 +548,9 @@ mapa_seg <- function(ciu) {
     geom_sf(data = datos, aes(fill = clase), color = "white", linewidth = 0.3) +
     geom_sf(data = st_crop(ejes, st_bbox(datos)), color = "grey40", linewidth = 0.1) +
     scale_fill_manual(values = c("Menos de 40" = "#1a9641", "40 a 60" = "#a6d96a",
-                                 "60 a 80" = "#ffffbf", "80 a 100" = "#fdae61",
+                                 "60 a 80" = "#fee08b", "80 a 100" = "#fdae61",
                                  "Más de 100" = "#d7191c", "Sin picos" = "grey80"),
-                      drop = FALSE) +
+                      drop = TRUE) +
     labs(fill = "Metros de calle por pico") +
     theme_void() +
     theme(legend.position = "bottom")
@@ -562,6 +565,8 @@ mapa_seg <- function(ciu) {
 mapa_seg("San José de Mayo")
 ```
 
+En San José de Mayo, 31 de sus 37 segmentos se ubican entre 25 y 70 metros por pico, y los valores más altos corresponden a segmentos de mayor superficie. La población que reside en los segmentos con menor cobertura se estima en 1.871 personas (5,2% de la población de la ciudad).
+
 ```{r}
 #| label: fig-seg-cdp
 #| fig-cap: "Metros de calle por pico de luz según segmento censal: Ciudad del Plata"
@@ -570,6 +575,8 @@ mapa_seg("San José de Mayo")
 mapa_seg("Ciudad del Plata")
 ```
 
+En Ciudad del Plata se observa la mayor heterogeneidad: 9 de sus 30 segmentos superan los 100 metros de calle por pico y uno no registra picos; en los dos segmentos con menor cobertura la distancia promedio supera los 190 metros. En Ciudad del Plata, la población que reside en los segmentos con menor cobertura lumínica (más de 100 metros de calle por pico) se estima en 12.064 personas, el 30,6% de la población de la ciudad.
+
 ```{r}
 #| label: fig-seg-lib
 #| fig-cap: "Metros de calle por pico de luz según segmento censal: Libertad"
@@ -577,10 +584,6 @@ mapa_seg("Ciudad del Plata")
 #| fig-height: 7
 mapa_seg("Libertad")
 ```
-
-En Ciudad del Plata se observa la mayor heterogeneidad: 9 de sus 30 segmentos superan los 100 metros de calle por pico y uno no registra picos; en los dos segmentos con menor cobertura la distancia promedio supera los 190 metros. En Ciudad del Plata, la población que reside en los segmentos con menor cobertura lumínica (más de 100 metros de calle por pico) se estima en 12.064 personas, el 30,6% de la población de la ciudad.
-
-En San José de Mayo, 31 de sus 37 segmentos se ubican entre 25 y 70 metros por pico, y los valores más altos corresponden a segmentos de mayor superficie. La población que reside en los segmentos con menor cobertura se estima en 1.871 personas (5,2% de la población de la ciudad).
 
 En Libertad, 9 de sus 10 segmentos se ubican por debajo de los 60 metros por pico. Cabe señalar que 187 picos de alineación de Libertad se encuentran fuera de los segmentos urbanos definidos por el INE, por lo que no se incluyen en este análisis. La población de Libertad que reside en el único segmento con menor cobertura se estima en 297 personas (2,6% de la población de la ciudad).
 
